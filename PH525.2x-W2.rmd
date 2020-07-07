@@ -1,0 +1,23 @@
+---
+title: "PH525.2x-W1"
+author: "jhonny"
+date: "7/3/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(UsingR)
+library(dplyr)
+X <- matrix(c(1,1,1,1,0,0,1,1),nrow=4)
+rownames(X) <- c("a","a","b","b")
+beta <- c(5, 2)
+Y <- c(1,0)
+lm(Y~beta)
+```
+
+
+

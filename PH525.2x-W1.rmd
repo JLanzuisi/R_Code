@@ -1,0 +1,43 @@
+---
+title: "PH525.2x-W1"
+author: "jhonny"
+date: "7/3/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(UsingR)
+library(dplyr)
+data("father.son",package="UsingR")
+floor(father.son$fheight) == 71
+svtyone.height <- filter(father.son, floor(fheight)==71)
+mean(svtyone.height$sheight)
+```
+
+```{r}
+X = matrix(1:1000,100,10)
+X[25,3]
+x <- 1:10
+X2 <- cbind(x,2*x,3*x,4*x,5*x)
+sum(X2[7,])
+matrix(1:60,20,3,byrow=TRUE)
+X2*1
+y <- matrix(c(10,5,7,4),4,1)
+Z <- matrix(c(3,4,-5,1,2,2,2,-1,1,-1,5,-5,5,0,0,1),4,4,byrow = TRUE)
+solve(Z,y)
+```
+
+```{r}
+a <- matrix(1:12, nrow=4)
+b <- matrix(1:15, nrow=3)
+A <- a%*%b
+A[3,2]
+sum(a[3,]*b[,2])
+```
+
+
+

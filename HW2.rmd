@@ -1,0 +1,218 @@
+---
+title: "HW2"
+author: "jhonny"
+date: "6/18/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+# Random variables
+```{r}
+fem_pop <- read.csv("femaleControlsPopulation.csv")
+fem_pop <- data.matrix(fem_pop)
+mean(fem_pop)
+set.seed(5)
+sample1 <- sample(fem_pop, 5)
+abs(mean(fem_pop)-mean(sample1))
+```
+```{r}
+set.seed(1)
+n <- 1000
+sampleaverages <- vector("numeric",n)
+for (i in 1:n) {
+  sampleaverages[i] <- mean(sample(fem_pop, 50))
+}
+mean(sampleaverages > mean(fem_pop)+1 | sampleaverages < mean(fem_pop)-1)
+```
+```{r}
+library(gapminder)
+data(gapminder)
+head(gapminder)
+library(dplyr)
+gapm_1952_exp <- filter(gapminder, year=="1952") %>% select(country, lifeExp)
+mean((gapm_1952_exp <= 60) - (gapm_1952_exp <= 40))
+```
+
+# Normal distirbution
+
+```{r}
+x <- unlist(read.csv("femaleControlsPopulation.csv"))
+# make averages5
+set.seed(1)
+n <- 1000
+averages5 <- vector("numeric",n)
+for(i in 1:n){
+  X <- sample(x,5)
+  averages5[i] <- mean(X)
+}
+
+# make averages50
+set.seed(1)
+n <- 1000
+averages50 <- vector("numeric",n)
+for(i in 1:n){
+  X <- sample(x,50)
+  averages50[i] <- mean(X)
+}
+
+plots <- list()
+par(mfrow = c(2,1))
+averages5 <- as.data.frame(averages5)
+(
+  plots[[1]] <- ggplot(data = averages5, mapping = aes(x=averages5)) +
+  geom_histogram(binwidth = 0.5)
+)
+averages50 <- as.data.frame(averages50)
+(
+  plots[[2]] <- ggplot(data = averages50, mapping = aes(x=averages50)) +
+  geom_histogram(binwidth = 0.5)
+)
+(
+  plots[[3]] <- ggplot(data = averages50, mapping = aes(sample=averages50)) +
+  geom_qq() +
+  geom_qq_line()
+)
+
+mean((averages50 < 25) & (averages50 > 23))
+(pnorm(25, 23.9, 0.43) - pnorm(23, 23.9, 0.43))
+```
+# Population samples
+```{r}
+library(rafalib)
+dat <- na.omit( read.csv("mice_pheno.csv") )
+
+dat_chow <- filter(dat, Diet=="chow") %>% filter(Sex=="M")
+dat_chow <- dat_chow$Bodyweight
+m1 <- mean(dat_chow)
+dat_chow_sd <- popsd(dat_chow)
+mean( (dat_chow < m1+(3*dat_chow_sd)) - (dat_chow < m1) ) + mean( (dat_chow > m1-(3*dat_chow_sd)) - (dat_chow > m1) )
+
+set.seed(2)
+dat_chow_mn <- mean(sample(dat_chow$Bodyweight, 25))
+
+dat_hf <- filter(dat, Diet=="hf") %>% filter(Sex=="F")
+dat_hf <- dat_hf$Bodyweight
+m2 <- mean(dat_hf)
+
+set.seed(2)
+dat_hf_mn <- mean(sample(dat_hf, 25))
+popsd(dat_hf)
+
+
+abs((m2-m1)-(dat_hf_mn-dat_chow_mn))
+
+set.seed(1)
+avgs <- replicate(10000, mean( sample(dat_chow, 25)))
+mean(avgs)
+popsd(avgs)
+```
+```{r}
+set.seed(1)
+n=100
+x=sample(1:6, n, replace=TRUE)
+mean(x==6)
+p=1/6
+z <- replicate(10000, mean(sample(1:6, n, replace=TRUE)==6))
+w = (z - p) / sqrt(p*(1-p)/n)
+mean(abs(w)>2)
+
+dat <- read.csv("femaleMiceWeights.csv")
+X <- filter(dat, Diet=="chow") %>% select(Bodyweight) %>% unlist
+Y <- filter(dat, Diet=="hf") %>% select(Bodyweight) %>% unlist
+
+mean(X)-2
+sd(X)
+pnorm(mean(X))
+
+se <- sqrt((sd(Y)^2/12) + (sd(X)^2/12) )
+(sd(Y)^2/sqrt(12)) + (sd(X)^2/sqrt(12))
+sqrt(7.484227)
+
+diff <- mean(Y) - mean(X)
+tstat <- diff/se
+t.test(X,Y)
+w <- (2-mean(X)) / (sd(X)/sqrt(12))
+pnorm(abs(w),mean=mean(X),sd=sd(X))
+```
+```{r}
+babies <- read.table("babies.txt", header=TRUE)
+bwt.nonsmoke <- filter(babies, smoke==0) %>% select(bwt) %>% unlist 
+bwt.smoke <- filter(babies, smoke==1) %>% select(bwt) %>% unlist
+library(rafalib)
+mean(bwt.nonsmoke)-mean(bwt.smoke)
+popsd(bwt.nonsmoke)
+popsd(bwt.smoke)
+reject <- function(N, alpha=0.01){
+nonsmoke <- sample(bwt.nonsmoke,N)
+smoke <- sample(bwt.smoke,N)
+pval <- t.test(nonsmoke,smoke)$p.value
+pval < alpha
+}
+set.seed(1)
+rejections <- replicate(10000,reject(90))
+mean(rejections)
+```
+
+```{r}
+set.seed(1)
+X <- rnorm(5,0,1)
+t <- (sqrt(5)*mean(X))/sd(X)
+tstatF <- function(n) {
+  X <- sample(c(-1,1), n, replace=TRUE)
+  t <- (sqrt(n)*mean(X))/sd(X)
+#  print(t)
+#  t > 2
+}
+Y <- replicate(1000,tstatF(15))
+mean(Y)
+B <- 100
+ps = seq(1/(B+1), 1-1/(B+1),len=B)
+qqplot(qt(ps,df=14),Y)
+abline(0,1)
+mean(qt(ps,df=14))
+set.seed(1)
+N <- 1000
+B <- 10000
+tstats <- replicate(B,{
+  X <- sample(c(-1,1), N, replace=TRUE)
+  sqrt(N)*mean(X)/sd(X)
+})
+ps=seq(1/(B+1), 1-1/(B+1), len=B) 
+qqplot(qt(ps,999), tstats, xlim=range(tstats))
+abline(0,1)
+```
+```{r}
+N=10
+set.seed(1)
+nonsmokers <- sample(bwt.nonsmoke , N)
+smokers <- sample(bwt.smoke , N)
+obs <- mean(smokers) - mean(nonsmokers)
+f <- function(N){
+dat <- c(smokers,nonsmokers)
+shuffle <- sample( dat )
+smokersstar <- shuffle[1:N]
+nonsmokersstar <- shuffle[(N+1):(2*N)]
+mean(smokersstar)-mean(nonsmokersstar)
+}
+f(10)
+
+replicate(1000,f(10))
+```
+
+```{r}
+library(UsingR)
+library(dplyr)
+dat <- nym.2002
+nym.males <- filter(dat, gender=="Male")
+nym.females <- filter(dat, gender=="Female")
+cor(nym.females$age,nym.females$time)
+```
+
+
+
+
+

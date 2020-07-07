@@ -1,0 +1,157 @@
+---
+title: "HW week 1"
+author: "jhonny"
+date: "6/16/2020"
+output: html_document
+---
+
+# R basics
+
+```{r}
+x <- c(2.23, 3.45, 1.87, 2.11, 7.33, 18.34, 19.23)
+mean(x)
+```
+
+```{r}
+y <- 0
+
+for (a in 1:25) {
+  y[a] <- a^2
+}
+sum(y)
+```
+
+# R data manipulation
+
+Reading cvs file and saving to variable.
+```{r}
+miceData <- read.csv("femaleMiceWeights.csv")
+head(miceData)
+```
+Get value of row 12 column 2.
+```{r}
+miceData[12,2]
+names(miceData)
+```
+Get mice weight and the amount of mice.
+```{r}
+miceData$Bodyweight[11]
+length(miceData$Bodyweight)
+```
+Search for "hf" and get the mean.
+```{r}
+grep("hf",miceData$Diet)
+mean(miceData$Bodyweight[13:24])
+```
+Get a ramdom number in the rage 13--14 and print the weight of the mouse on that row.
+```{r}
+intdump <- 13:24
+set.seed(1)
+sample(intdump, 1)
+miceData$Bodyweight[21]
+```
+# dplyr intro
+
+```{r}
+library(dplyr)
+mamSleep <- read.csv("msleep_ggplot2.csv")
+class(mamSleep)
+nrow(mamSleep)
+```
+Select primates
+```{r}
+primates <- filter(mamSleep, order=="Primates")
+nrow(primates)
+class(primates)
+```
+Sleep total and mean
+```{r}
+primates_sleep_total <- filter(mamSleep, order=="Primates") %>% select(sleep_total)
+class(primates_sleep_total)
+mean(unlist(primates_sleep_total))
+```
+Use summarize to calculate mean.
+```{r}
+head(primates)
+primates_sleep_total <- filter(mamSleep, order=="Primates") %>% summarize(mean = mean(sleep_total),  n = n())
+primates_sleep_total
+```
+# Data exploration
+## Histograms
+```{r}
+library(tidyverse)
+plots <- list()
+mamSleep_sleep <- mamSleep$sleep_total
+print(
+  plots[[1]] <- ggplot(data = mamSleep, mapping = aes(x = sleep_total)) +
+  geom_histogram(binwidth = 1)
+)
+```
+## qq plot
+```{r}
+load("./data.RData")
+dat <- as.data.frame(dat)
+par(mfrow = c(3,3))
+
+#  facet_wrap(~ V2)
+B <- names(dat)
+for (i in 1:9) {
+print(plots[[1+i]] <- ggplot(data = dat, mapping = aes_string(sample = B[i])) +
+  geom_qq() +
+  geom_qq_line())
+}
+par(mfrow = c(2,1))
+```
+```{r}
+print(
+  plots[[11]] <- ggplot(data = dat, mapping = aes(x = V4)) +
+  geom_histogram(binwidth = 1)
+)
+```
+## boxplot
+```{r}
+print(
+  plots[[12]] <- ggplot(data = InsectSprays, mapping = aes(x = spray, y = count)) +
+  geom_boxplot()
+)
+```
+
+```{r}
+data(nym.2002, package="UsingR")
+head(nym.2002)
+nym.male <- filter(nym.2002, gender=="Male")
+
+print(
+  plots[[13]] <- ggplot(data = nym.male, mapping = aes(x = time)) +
+  geom_histogram(binwidth = 10)
+)
+
+print(
+  plots[[14]] <- ggplot(data = nym.male, mapping = aes(sample = time)) +
+  geom_qq() +
+  geom_qq_line()
+)
+
+print(
+  plots[[15]] <- ggplot(data = nym.male, mapping = aes(x = time, y = place, group = time)) +
+  geom_boxplot()
+)
+#hist(nym.male[,5],breaks=seq(floor(min(nym.male[,5])),ceiling(max(nym.male[,5]))))
+#qqnorm(nym.male[,5])
+#boxplot(place~time,data=nym.male)
+nym.female <- filter(nym.2002, gender=="Female")
+print(
+  plots[[16]] <- ggplot(data = nym.female, mapping = aes(x = time)) +
+  geom_histogram(binwidth = 10)
+)
+#hist(nym.female[,5],breaks=seq(floor(min(nym.female[,5])),ceiling(max(nym.female[,5]))))
+
+pdf("../LaTeX/edX_courses/pics/all.pdf")
+plots
+dev.off()
+```
+```{r}
+z <-#
+  2
+```
+

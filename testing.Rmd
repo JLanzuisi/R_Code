@@ -1,0 +1,29 @@
+---
+title: "Pruebas varias"
+author: "jhonny"
+date: "6/26/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Graficos
+
+Intentemos la función 1/x.
+
+```{r}
+library(tidyverse)
+f <- function(x) {pi/x + 0.5}
+vec1 <- f(1:100)
+ggplot(data.frame(x = c(0, 25)), aes(x)) +
+  stat_function(fun = f) + ylim(0,5) +
+  geom_hline(aes(yintercept=0.5))
+
+g <- function(x) {1/x}
+f.2 <- function(x) {sum(g(x))}
+v <- c
+```
+
