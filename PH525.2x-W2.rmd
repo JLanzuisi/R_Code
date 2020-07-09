@@ -20,4 +20,52 @@ lm(Y~beta)
 ```
 
 
+```{r}
+g = 9.8 ## meters per second
+h0 = 56.67
+v0 = 0
+n = 25
+tt = seq(0,3.4,len=n) ##time in secs, t is a base function
+X = cbind(1,tt,tt^2)
+A = solve(crossprod(X))%*%t(X)
+
+set.seed(1)
+montcarlo <- function (n){
+y = h0 + v0 *tt  - 0.5* g*tt^2 + rnorm(n,sd=1)
+-2 * (A %*% y) [3]
+}
+set.seed(1)
+z <- replicate(100000,montcarlo(25))
+sd(z)
+```
+```{r}
+x = father.son$fheight
+y = father.son$sheight
+n = length(y)
+N =  50
+set.seed(1)
+montcarlo2 <- function (N){
+index = sample(n,N)
+sampledat = father.son[index,]
+x = sampledat$fheight
+y = sampledat$sheight
+betahat = lm(y~x)$coef
+}
+w <- (montcarlo2(50))
+sd(w)
+set.seed(1)
+w <- replicate(10000,montcarlo2(50))
+sd(w[2,])
+```
+```{r}
+X = cbind(rep(1,N), x)
+betaX <- solve(t(X)%*%X)
+
+fit = lm(y ~ x)
+betay <- fit$fitted.values
+SSR <- sum((y - betay)^2)
+sigma2 = SSR / 48
+sqrt(diag(betaX)*sigma2)
+```
+
 
